@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relogic Research x Maximus Glixia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d0f; /* Unusual Path dark background */
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* The Canvas Background */
+        #matrixCanvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Center Overlay Container */
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            background: rgba(22, 22, 26, 0.85); /* Translucent surface color */
+            padding: 50px 70px;
+            border-radius: 8px;
+            border-top: 2px solid #8c3b3b; /* Accent red */
+            border-bottom: 2px solid #c5b38d; /* Accent gold */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            color: #7aa2f7; /* Tech blue */
+            margin: 0 0 10px 0;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            font-size: 1.8rem;
+            color: #d1d1e0;
+            margin: 0 0 25px 0;
+        }
+
+        .motto {
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            color: #c5b38d; /* Accent gold */
+            font-size: 1.4rem;
+            font-style: italic;
+            border-left: 2px solid #8c3b3b;
+            border-right: 2px solid #8c3b3b;
+            padding: 0 15px;
+            display: inline-block;
+        }
+
+        .stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 2px solid #8c3b3b;
+            color: #8c3b3b;
+            font-family: 'Noto Serif SC', serif;
+            padding: 5px 10px;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            opacity: 0.6;
+            z-index: 2;
+        }
+
+        /* Subtle pulsating glow for the title */
+        @keyframes pulse {
+            0% { text-shadow: 0 0 5px rgba(122, 162, 247, 0.2); }
+            50% { text-shadow: 0 0 20px rgba(122, 162, 247, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(122, 162, 247, 0.2); }
+        }
+
+        .pulse-text {
+            animation: pulse 3s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stamp">枕山</div>
+
+    <!-- The overlay box holding the text -->
+    <div class="overlay">
+        <h1 class="title pulse-text">RELOGIC RESEARCH</h1>
+        <h2 class="subtitle">IT Infrastructure & Cyber Intelligence</h2>
+        <div class="motto">
+            一半是禅，一半是混沌 <br>
+            <span style="font-size: 1rem; color: #8a8a9d;">Half Zen, half chaos.</span>
+        </div>
+    </div>
+
+    <!-- The Rain Canvas -->
+    <canvas id="matrixCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Make canvas full screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // The exact characters to rain down. 
+        // Mixing Relogic Research with your philosophical Chinese characters.
+        const letters = "RELOGICRESEARCH半禅半沌山道吾本混沌01";
+        const charsArr = letters.split("");
+
+        const fontSize = 18;
+        const columns = canvas.width / fontSize;
+
+        // Array of drops - one per column
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * -100; // start at random heights above the screen
+        }
+
+        function drawMatrix() {
+            // Dark translucent background creates the trailing effect
+            ctx.fillStyle = "rgba(13, 13, 15, 0.07)"; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = fontSize + 'px "JetBrains Mono", monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                // Pick a random character
+                const text = charsArr[Math.floor(Math.random() * charsArr.length)];
+                
+                // Color logic: if it's an English letter/number, use tech blue. If it's Chinese, use Zen gold.
+                if (text.match(/[A-Z0-1]/)) {
+                    ctx.fillStyle = "#7aa2f7"; // Pop!_OS / Tech Blue
+                } else {
+                    ctx.fillStyle = "#c5b38d"; // Zen Gold
+                }
+
+                // Draw the character
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // Reset drop to the top randomly once it crosses the screen height
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                // Move drop down
+                drops[i]++;
+            }
+        }
+
+        // Handle window resize dynamically
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Recalculate columns on resize
+            const newColumns = canvas.width / fontSize;
+            for (let x = drops.length; x < newColumns; x++) {
+                drops[x] = Math.random() * -100;
+            }
+        });
+
+        // Run the animation loop
+        setInterval(drawMatrix, 50);
+    </script>
+</body>
+</html>
